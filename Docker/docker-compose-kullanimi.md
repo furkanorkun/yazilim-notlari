@@ -1,11 +1,21 @@
-# Docker Compose Terminal Komutları Rehberi
+# Docker Compose Kullanım Rehberi
 
-Docker Compose, çoklu konteyner uygulamalarını yönetmek için kullanılan güçlü bir araçtır. İşte en çok kullanılan komutlar ve gerçek dünya örnekleri:
+> **İçindekiler Tablosu**
+> - [Temel Komutlar](#temel-komutlar)
+> - [Servis Yönetimi](#servis-yönetimi)
+> - [Gerçek Dünya Senaryoları](#gerçek-dünya-senaryoları)
+> - [Yararlı Kombinasyonlar](#yararlı-kombinasyonlar)
+> - [İpuçları ve Best Practices](#i̇puçları-ve-best-practices)
+
+Docker Compose, çoklu konteyner uygulamalarını yönetmek için kullanılan güçlü bir araçtır. Bu rehber en çok kullanılan komutları ve gerçek dünya örneklerini kapsar.
+
+---
 
 ## Temel Komutlar
 
 ### docker compose up
-Servisleri başlatır ve konteynerleri oluşturur.
+
+**Ne yapar:** Servisleri başlatır ve konteynerleri oluşturur.
 
 ```bash
 # Tüm servisleri başlat
@@ -18,14 +28,15 @@ docker compose up -d
 docker compose up api
 ```
 
-**Gerçek dünya örneği:**
+**Pratik Örnek:**
 ```bash
 # .NET API + React + SQL Server stack'ini başlatma
 docker compose up -d
 # Çıktı: API localhost:5000'de, React localhost:3000'de, SQL localhost:1433'te hazır
 ```
 ### docker compose down
-Servisleri durdurur ve konteynerleri, networkleri kaldırır.
+
+**Ne yapar:** Servisleri durdurur ve konteynerleri, networkleri kaldırır.
 
 ```bash
 # Servisleri durdur ve temizle
@@ -38,29 +49,36 @@ docker compose down -v
 docker compose down --rmi all
 ```
 
-**Gerçek dünya örneği:**
+**Pratik Örnek:**
 ```bash
 # Geliştirme ortamını tamamen temizleme
 docker compose down -v
 # SQL veritabanı verileri de silinir
 ```
+### docker compose ps
+
+**Ne yapar:** Çalışan servisleri listeler.
+
+```bash
 docker compose ps
-Çalışan servisleri listeler.
-bashdocker compose ps
 
 # Tüm konteynerleri göster (durmuş olanlar dahil)
 docker compose ps -a
 ```
 
-**Çıktı örneği:**
+**Çıktı Örneği:**
 ```
 NAME                SERVICE    STATUS       PORTS
 myapp-api-1        api        running      0.0.0.0:5000->80/tcp
 myapp-frontend-1   frontend   running      0.0.0.0:3000->3000/tcp
 myapp-db-1         db         running      0.0.0.0:1433->1433/tcp
-docker compose logs
-Konteyner loglarını görüntüler.
-bash# Tüm servislerin logları
+```
+### docker compose logs
+
+**Ne yapar:** Konteyner loglarını görüntüler.
+
+```bash
+# Tüm servislerin logları
 docker compose logs
 
 # Belirli bir servisin logları
@@ -71,14 +89,19 @@ docker compose logs -f
 
 # Son 100 satır
 docker compose logs --tail=100 api
-Gerçek dünya örneği:
-bash# .NET API'nin hata loglarını takip etme
+```
+
+**Pratik Örnekler:**
+```bash
+# .NET API'nin hata loglarını takip etme
 docker compose logs -f api
 
 # React build hatalarını görme
 docker compose logs frontend | grep "ERROR"
+```
 ### docker compose exec
-Çalışan bir konteynerde komut çalıştırır.
+
+**Ne yapar:** Çalışan bir konteynerde komut çalıştırır.
 
 ```bash
 # API konteynerinde bash açma
@@ -91,16 +114,20 @@ docker compose exec db /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourPas
 docker compose exec api dotnet ef database update
 ```
 
-**Gerçek dünya örneği:**
+**Pratik Örnekler:**
 ```bash
 # React konteynerinde npm paket yükleme
 docker compose exec frontend npm install axios
 
 # SQL backup alma
 docker compose exec db /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Pass@123 -Q "BACKUP DATABASE MyDb TO DISK='/var/opt/mssql/backup/mydb.bak'"
-```
+---
+
+## Servis Yönetimi
+
 ### docker compose build
-Servislerin image'larını yeniden build eder.
+
+**Ne yapar:** Servislerin image'larını yeniden build eder.
 
 ```bash
 # Tüm servisleri build et
@@ -113,7 +140,7 @@ docker compose build --no-cache
 docker compose build api
 ```
 
-**Gerçek dünya örneği:**
+**Pratik Örnek:**
 ```bash
 # .NET API'de kod değişikliği sonrası yeniden build
 docker compose build api
@@ -121,7 +148,8 @@ docker compose up -d api
 ```
 
 ### docker compose restart
-Servisleri yeniden başlatır.
+
+**Ne yapar:** Servisleri yeniden başlatır.
 
 ```bash
 # Tüm servisleri restart et
@@ -131,8 +159,9 @@ docker compose restart
 docker compose restart api
 ```
 
-### docker compose stop ve docker compose start
-Servisleri durdurur/başlatır (silmeden).
+### docker compose stop / start
+
+**Ne yapar:** Servisleri durdurur/başlatır (silmeden).
 
 ```bash
 # Servisleri durdur
@@ -144,9 +173,13 @@ docker compose start
 # Belirli servisi durdur
 docker compose stop db
 ```
+
+---
 ## Gerçek Dünya Senaryoları
 
 ### Senaryo 1: .NET API + React + SQL Server Geliştirme Ortamı
+
+**docker-compose.yml Örneği:**
 
 ```yaml
 # docker-compose.yml
@@ -185,7 +218,7 @@ volumes:
   sqldata:
 ```
 
-**Kullanım akışı:**
+**Kullanım Akışı:**
 ```bash
 # 1. İlk kurulum
 docker compose up -d
@@ -260,6 +293,10 @@ docker compose up -d db
 docker compose exec api dotnet ef database update
 ```
 
+---
+
+---
+
 ## Yararlı Kombinasyonlar
 
 ```bash
@@ -276,12 +313,18 @@ docker compose down && docker compose up -d
 docker compose ps && docker stats
 ```
 
-## İpuçları
+---
+
+## İpuçları ve Best Practices
+
+### Geliştirme İpuçları
 
 - **Development için volume mount kullan:** Kod değişiklikleri anında yansır
 - **Production için build kullan:** Image'lar optimize edilir
 - **Her zaman -d flag'i kullanmayın:** Başlangıçta logları görmek önemli
 - **depends_on kullanın:** Servislerin doğru sırayla başlamasını sağlar
 - **Health check ekleyin:** Servislerin gerçekten hazır olmasını bekleyin
+
+### Özet
 
 Docker Compose, .NET, React ve SQL Server stack'i için ideal bir geliştirme ortamı sağlar. Tek bir komutla tüm altyapınız ayağa kalkar ve tutarlı bir ortam elde edersiniz.
